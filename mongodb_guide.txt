@@ -1,0 +1,27 @@
+GUIDE TO ACCESSING YOUR MONGODB DATA
+
+STEP 1: Connect to MongoDB shell using:
+docker exec -it mongodb mongo --username anosh --password 3214
+
+STEP 2: Once in the MongoDB shell, run these commands one by one:
+
+# List all databases
+show dbs
+
+# Switch to the url_shortener database
+use url_shortener
+
+# List all collections in the database
+show collections
+
+# View all documents in the urls collection
+db.urls.find().pretty()
+
+# Count the number of URL entries
+db.urls.countDocuments()
+
+# Find a specific short URL by ID (replace 'kali' with your actual short ID)
+db.urls.findOne({_id: "kali"})
+
+# Exit the shell when done
+exit 
