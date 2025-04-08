@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:4.4
+    container_name: mongodb
+    restart: always  # Ensures MongoDB starts automatically after a reboot
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db  # Persistent storage
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: anosh
+      MONGO_INITDB_ROOT_PASSWORD: 3214
+    networks:
+      - app-network
+
+  url-shortener:
+    build: .
+    container_name: url-shortener
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongodb
+    environment:
+      - MONGO_USER=anosh
+      - MONGO_PASSWORD=3214
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
