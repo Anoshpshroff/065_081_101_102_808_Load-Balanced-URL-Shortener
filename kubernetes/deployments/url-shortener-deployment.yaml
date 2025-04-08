@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: url-shortener
+  labels:
+    app: url-shortener
+    tier: frontend
+spec:
+  replicas: 3  # Multiple instances for load balancing
+  selector:
+    matchLabels:
+      app: url-shortener
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: url-shortener
+        tier: frontend
+    spec:
+      containers:
+      - name: url-shortener
+        image: url-shortener:latest
+        imagePullPolicy: IfNotPresent  # Use locally built image
+        ports:
+        - containerPort: 8000
+        env:
+        - name: MONGO_USER
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongodb-username
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongodb-password
+        - name: MONGO_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: mongodb-config
+              key: mongodb-host
+        - name: MONGO_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: mongodb-config
+              key: mongodb-port
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "300m"
+        readinessProbe:
+          httpGet:
+            path: /_health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /_health
+            port: 8000
+          initialDelaySeconds: 20
+          periodSeconds: 30
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3 
